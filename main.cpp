@@ -26,7 +26,7 @@ void g_satc_02() {
 
     Vehicle tankOfAr(5, 2, Position(3, 2), MORTAR);
     Vehicle truckOfAr(3, 1, Position(3, 1), TRUCK);
-    Infantry sniperOfAr(5, 2, Position(3, 3), SNIPER);
+    Infantry sniperOfAr(5, 2, Position(3, 3), ANTIAIRCRAFTSQUAD);
 
     Unit** unitArrayOfLiber = new Unit*[3];
     unitArrayOfLiber[0] = &tankOfLiber;

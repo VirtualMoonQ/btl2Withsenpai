@@ -155,10 +155,10 @@ public:
     
     //Extra functions
     int getQuantity(){
-        return quantity;
+        return this -> quantity;
     }
     void setQuantity(int q){
-        quantity = q;
+        this -> quantity = q;
     }
     int getW(){ return weight;}
     void setW(int w){weight = w;}

@@ -28,9 +28,7 @@ void g_satc_02() {
         // cout << tankOfAr.getAttackScore() << endl;
         // Vehicle truckOfAr(1, 10, Position(3, 1), TRUCK);
         // cout << truckOfAr.getAttackScore() << endl;
-        Infantry sniperOfAr(10, 20, Position(3, 3), SNIPER);
-        cout << sniperOfAr.getIT() << endl;
-        cout << sniperOfAr.getAttackScore() << endl;
+        Infantry sniperOfAr(7, 20, Position(3, 3), SNIPER);
 
     
         // Unit** unitArrayOfLiber = new Unit*[3];

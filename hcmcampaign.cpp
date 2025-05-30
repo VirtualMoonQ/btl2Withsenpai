@@ -98,24 +98,23 @@ int Infantry::computePersonalNumber(int score, int year){
 int Infantry::getAttackScore(){
     int extra = 0;
     int score = 0;
-    int q = getQuantity();
-
+    int q = this -> getQuantity();
     if (infantryType == SPECIALFORCES && sqrt((double)weight) == (int)sqrt((double)weight)){
         extra = 75;
     }
     score = infantryType * 56 + quantity * weight + extra;
+    // cout << "Personal Score: " << computePersonalNumber(score) << endl;
     if (computePersonalNumber(score) < 3){
-        q -= q/10;
+        q += ceil(q/10.0);
     } 
     else if (computePersonalNumber(score) > 7){
-        q += q/5;
+        q += ceil(q/5.0);
     }
     else{
         return score;
     }
-    setQuantity(q);
-    cout << "Recursive";
-    return getAttackScore();
+    this -> setQuantity(q);
+    return infantryType * 56 + this -> getQuantity() * weight + extra;
 }
 
 
@@ -544,9 +543,9 @@ void ARVN::fight(Army* enemy, bool defense){
             }
             while (current != NULL && current->next != NULL){
                 if (!libList->exist(current->next->data)){
-                    Node *xoa = current->next;
+                    Node *toDel = current->next;
                     current->next = current->next->next;
-                    delete xoa;
+                    delete toDel;
                 }
                 else {
                     int x = current->next->data->getW();
@@ -562,7 +561,7 @@ void ARVN::fight(Army* enemy, bool defense){
 //str Method
 string ARVN::str()const{
     ostringstream oss;
-    oss << "ARVN[name="
+    oss << "ARVN["
         << "LF=" << LF
         << ",EXP=" << EXP
         << ",unitList=" << unitList -> str()
@@ -713,11 +712,12 @@ string UnitList::str() const{
         if(current -> next != nullptr) unitlist += ',';
         current = current -> next;
     }
-
+    
+    string semi = (unitlist != "") ? ";" : "";
     ostringstream oss;
     oss << "UnitList[count_vehicle=" << countV
         << ";count_infantry=" << countI
-        <<  ";" << unitlist << "]";
+        <<  semi << unitlist << "]";
     
     return oss.str();
 }
@@ -760,7 +760,9 @@ string Configuration::str(){return "";}
 //3.10 HCMCampaign Class
 HCMCampaign::HCMCampaign(const string& config_file_path){}
 
-void HCMCampaign::run(){}
+void HCMCampaign::run(){
+    
+}
 
 string HCMCampaign::printResult(){return "";}
 
