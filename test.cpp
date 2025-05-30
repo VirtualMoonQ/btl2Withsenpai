@@ -12,12 +12,12 @@
 
 using namespace std;
 
-// void g_satc_01() {
-//     cout << "----- Sample Testcase 01 -----" << endl;
-//     Configuration* config = new Configuration("config.txt");
-//     cout << config->str() << endl;
-//     delete config;
-// }
+void g_satc_01() {
+    cout << "----- Sample Testcase 01 -----" << endl;
+    Configuration* config = new Configuration("config.txt");
+    cout << config->str() << endl;
+    delete config;
+}
 void g_satc_02() {
     cout << "----- Sample Testcase 02 -----" << endl;
         Vehicle tankOfLiber(20, 20, Position(1, 2), MORTAR);
@@ -59,7 +59,7 @@ void g_satc_02() {
 }
 
 int main(int argc, const char * argv[]) {
-    // g_satc_01();
-    g_satc_02();
+    g_satc_01();
+    // g_satc_02();
     return 0;
 }

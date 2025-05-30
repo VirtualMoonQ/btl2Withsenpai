@@ -749,10 +749,179 @@ string BattleField::str(){return "";}
 
 /////////////////////////////////////////////////
 //3.9 Configuration
-Configuration::Configuration(const string& filepath){}
-Configuration::~Configuration(){};
+Configuration::Configuration(const string &filepath) {
+    ifstream fin(filepath);
+    string line;
 
-string Configuration::str(){return "";}
+    while (getline(fin, line)) {
+        if (line.empty()) continue;
+
+        if (line.find("NUM_ROWS=") == 0) {
+            num_rows = stoi(line.substr(9));
+        } else if (line.find("NUM_COLS=") == 0) {
+            num_cols = stoi(line.substr(9));
+        } else if (line.find("ARRAY_FOREST=") == 0) {
+            arrayForest = parsePositions(line.substr(13));
+        } else if (line.find("ARRAY_RIVER=") == 0) {
+            arrayRiver = parsePositions(line.substr(12));
+        } else if (line.find("ARRAY_FORTIFICATION=") == 0) {
+            arrayFortification = parsePositions(line.substr(21));
+        } else if (line.find("ARRAY_URBAN=") == 0) {
+            arrayUrban = parsePositions(line.substr(12));
+        } else if (line.find("ARRAY_SPECIAL_ZONE=") == 0) {
+            arraySpecialZone = parsePositions(line.substr(20));
+        } else if (line.find("UNIT_LIST=") == 0) {
+            string block = line;
+            while (block.find("]") == string::npos && getline(fin, line)) {
+                block += line;
+            }
+            parseUnits(block.substr(10));
+        } else if (line.find("EVENT_CODE=") == 0) {
+            int code = stoi(line.substr(11));
+            if (code < 0) eventCode = 0;
+            else eventCode = code % 100;
+        }
+    }
+
+    fin.close();
+}
+
+Configuration::~Configuration() {
+    for (Position* p : arrayForest) delete p;
+    for (Position* p : arrayRiver) delete p;
+    for (Position* p : arrayFortification) delete p;
+    for (Position* p : arrayUrban) delete p;
+    for (Position* p : arraySpecialZone) delete p;
+    for (Unit* u : liberationUnits) delete u;
+    for (Unit* u : ARVNUnits) delete u;
+}
+
+vector<Position*> Configuration::parsePositions(const string &data) {
+    vector<Position*> positions;
+    size_t i = 0;
+    while (i < data.length()) {
+        if (data[i] == '(') {
+            size_t j = data.find(')', i);
+            if (j != string::npos) {
+                string pair = data.substr(i, j - i + 1);
+                positions.push_back(new Position(pair));
+                i = j + 1;
+            } else break;
+        } else i++;
+    }
+    return positions;
+}
+
+void Configuration::parseUnits(const string &block) {
+    size_t i = 0;
+    while (i < block.length()) {
+        // Skip to the first '('
+        while (i < block.length() && block[i] != '(') i++;
+        if (i == block.length()) break;
+
+        // Extract unit name before '('
+        size_t nameEnd = i;
+        size_t nameStart = nameEnd;
+        while (nameStart > 0 && (isalpha(block[nameStart - 1]) || block[nameStart - 1] == '_')) {
+            nameStart--;
+        }
+        string name = block.substr(nameStart, nameEnd - nameStart);
+
+        // Find matching closing parenthesis
+        int parenCount = 1;
+        size_t j = i + 1;
+        while (j < block.length() && parenCount > 0) {
+            if (block[j] == '(') parenCount++;
+            else if (block[j] == ')') parenCount--;
+            j++;
+        }
+        if (parenCount != 0) break;
+
+        string args = block.substr(i + 1, j - i - 2);  // exclude outer parens
+        stringstream ss(args);
+        string token;
+
+        int q, w, r, c, b;
+        getline(ss, token, ','); q = stoi(token);
+        getline(ss, token, ','); w = stoi(token);
+
+        // Now read full position "(r,c)"
+        getline(ss, token, ',');  // should be like "(1"
+        r = stoi(token.substr(1)); // remove '('
+
+        getline(ss, token, ',');  // just c
+        c = stoi(token);
+
+        getline(ss, token);  // should be like "0)" but we already excluded ')'
+        b = stoi(token);
+
+        Position pos(r, c);
+        Unit* unit = nullptr;
+
+        // Instantiate unit by name
+        if (name == "TANK") unit = new Vehicle(q, w, pos, TANK);
+        else if (name == "TRUCK") unit = new Vehicle(q, w, pos, TRUCK);
+        else if (name == "ARTILLERY") unit = new Vehicle(q, w, pos, ARTILLERY);
+        else if (name == "APC") unit = new Vehicle(q, w, pos, APC);
+        else if (name == "ARMOREDCAR") unit = new Vehicle(q, w, pos, ARMOREDCAR);
+        else if (name == "ANTIAIRCRAFT") unit = new Vehicle(q, w, pos, ANTIAIRCRAFT);
+        else if (name == "MORTAR") unit = new Vehicle(q, w, pos, MORTAR);
+        else if (name == "SNIPER") unit = new Infantry(q, w, pos, SNIPER);
+        else if (name == "REGULARINFANTRY") unit = new Infantry(q, w, pos, REGULARINFANTRY);
+        else if (name == "ENGINEER") unit = new Infantry(q, w, pos, ENGINEER);
+        else if (name == "SPECIALFORCES") unit = new Infantry(q, w, pos, SPECIALFORCES);
+        else if (name == "MORTARSQUAD") unit = new Infantry(q, w, pos, MORTARSQUAD);
+        else if (name == "ANTIAIRCRAFTSQUAD") unit = new Infantry(q, w, pos, ANTIAIRCRAFTSQUAD);
+
+        if (unit) {
+            if (b == 0) liberationUnits.push_back(unit);
+            else ARVNUnits.push_back(unit);
+        }
+
+        i = j + 1;  // move past current unit
+    }
+}
+
+
+string Configuration::str() {
+    ostringstream oss;
+    oss << "[";
+    oss << "num_rows=" << num_rows << ",";
+    oss << "num_cols=" << num_cols << ",";
+
+    auto printPositions = [&](const vector<Position*>& vec) {
+        oss << "[";
+        for (size_t i = 0; i < vec.size(); ++i) {
+            oss << vec[i]->str();
+            if (i != vec.size() - 1) oss << ",";
+        }
+        oss << "]";
+    };
+
+    oss << "arrayForest="; printPositions(arrayForest); oss << ",";
+    oss << "arrayRiver="; printPositions(arrayRiver); oss << ",";
+    oss << "arrayFortification="; printPositions(arrayFortification); oss << ",";
+    oss << "arrayUrban="; printPositions(arrayUrban); oss << ",";
+    oss << "arraySpecialZone="; printPositions(arraySpecialZone); oss << ",";
+
+    oss << "liberationUnits=[";
+    for (size_t i = 0; i < liberationUnits.size(); ++i) {
+        oss << liberationUnits[i]->str();
+        if (i != liberationUnits.size() - 1) oss << ",";
+    }
+    oss << "],";
+
+    oss << "ARVNUnits=[";
+    for (size_t i = 0; i < ARVNUnits.size(); ++i) {
+        oss << ARVNUnits[i]->str();
+        if (i != ARVNUnits.size() - 1) oss << ",";
+    }
+    oss << "],";
+
+    oss << "eventCode=" << setw(2) << setfill('0') << eventCode;
+    oss << "]";
+    return oss.str();
+}
 
 
 

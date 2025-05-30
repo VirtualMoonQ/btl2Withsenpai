@@ -11,6 +11,7 @@
 #define H_HCM_CAMPAIGN_H
 
 #include "main.h"
+#include <cstdlib>
 #include <iterator>
 #include <unistd.h>
 
@@ -324,13 +325,16 @@ class Configuration{
 private:
     int num_rows, num_cols;
     vector<Position*> arrayForest, arrayRiver, arrayFortification, arrayUrban, arraySpecialZone;
-    Unit* liberationUnits;
-    Unit* ARVNUnits;
+    vector<Unit*> liberationUnits, ARVNUnits;
     int eventCode;
+    
 public:
     Configuration(const string & filepath);
     ~Configuration();
     string str();
+    
+    vector<Position*>parsePositions(const string &data);
+    void parseUnits(const string &block);
 };
 
 #endif
