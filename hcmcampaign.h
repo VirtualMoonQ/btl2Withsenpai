@@ -7,8 +7,8 @@
  */
 
 // The library here is concretely set, students are not allowed to include any other libraries.
-#ifndef _H_HCM_CAMPAIGN_H_
-#define _H_HCM_CAMPAIGN_H_
+#ifndef H_HCM_CAMPAIGN_H
+#define H_HCM_CAMPAIGN_H
 
 #include "main.h"
 
@@ -64,6 +64,7 @@ enum InfantryType
     REGULARINFANTRY
 };
 
+//3.4 Army Class
 class Army
 {
 protected:
@@ -77,8 +78,34 @@ public:
     Army(Unit **unitArray, int size, string name, BattleField *battleField);
     virtual void fight(Army *enemy, bool defense = false) = 0;
     virtual string str() const = 0;
+    
+    //Extra functions
+    bool sNum(int a);
+    bool isInt(double n);
+    int getLF();
+    int getEXP();
+    UnitList* getUnitList();
+    void reCal();
+    bool war = 0;
 };
+//3.4.1 LibeartionArmy Class
+class LiberationArmy : public Army{
+public:
 
+    LiberationArmy ( Unit ** unitArray , int size , string name , BattleField * battleField );
+    void fight(Army* enemy, bool defense = false) override;
+    string str() const override;
+    
+    void deleteList(vector<Unit*> v);
+    int nextFib(int n);
+};
+//3.4.2
+class ARVN : public Army{
+public:
+    ARVN( Unit ** unitArray , int size , string name , BattleField * battleField );
+    void fight(Army* enemy, bool defense = false) override;
+    string str() const override;
+};
 
 //3.6 Position Class
 class Position
@@ -137,9 +164,11 @@ public:
     virtual bool isInfantry() const = 0;
     virtual VehicleType getVT() const = 0;
     virtual InfantryType getIT() const = 0;
+    virtual Unit* dup() = 0;
     //End of extra functions
 };
 
+//3.5 UnitList Class
 struct Node{
     Unit* data;
     Node* next;
@@ -150,7 +179,6 @@ class UnitList
 {
 private:
     int capacity;
-    // TODO
     Node* head;
 public:
     ~UnitList();
@@ -165,6 +193,10 @@ public:
     //--Extra functions
     int listSize(); 
     int getCapacity();
+    Node* getHead();
+    void setCapacity(int c);
+    void setHead(Node* newHead);
+    bool exist(Unit* u);
 };
 
 class TerrainElement
@@ -216,6 +248,7 @@ public:
     bool isVehicle() const override;
     VehicleType getVT() const override {return vehicleType;}
     InfantryType getIT() const override {throw std::logic_error("");};
+    Unit* dup() override;
     //--End of extra functions
 };
 
@@ -236,6 +269,7 @@ public:
     bool isVehicle() const override;
     InfantryType getIT() const override {return infantryType;}
     VehicleType getVT() const override {throw std::logic_error("");};
+    Unit* dup() override;
     //--End of extra functions
 };
 
