@@ -20,11 +20,11 @@ using namespace std;
 // }
 void g_satc_02() {
     cout << "----- Sample Testcase 02 -----" << endl;
-    Vehicle tankOfLiber(5, 2, Position(1, 2), TANK);
+    Vehicle tankOfLiber(5, 2, Position(1, 2), MORTAR);
     Vehicle truckOfLiber(3, 1, Position(2, 2), TRUCK);
     Infantry sniperOfLiber(5, 2, Position(1, 1), SNIPER);
 
-    Vehicle tankOfAr(5, 2, Position(3, 2), TANK);
+    Vehicle tankOfAr(5, 2, Position(3, 2), MORTAR);
     Vehicle truckOfAr(3, 1, Position(3, 1), TRUCK);
     Infantry sniperOfAr(5, 2, Position(3, 3), SNIPER);
 

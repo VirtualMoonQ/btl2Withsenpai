@@ -11,6 +11,8 @@
 #define H_HCM_CAMPAIGN_H
 
 #include "main.h"
+#include <iterator>
+#include <unistd.h>
 
 ////////////////////////////////////////////////////////////////////////
 /// STUDENT'S ANSWER BEGINS HERE
@@ -199,6 +201,8 @@ public:
     bool exist(Unit* u);
 };
 
+
+//3.7 TerrainElement Class
 class TerrainElement
 {
 public:
@@ -207,18 +211,59 @@ public:
     virtual void getEffect(Army *army) = 0;
 };
 
+class Road : public TerrainElement{
+public:
+    Road(){}
+    void getEffect(Army* army) override;
+};
+
+class Mountain : public TerrainElement{
+public:
+    Mountain(){}
+    void getEffect(Army* army) override;
+};
+
+class River : public TerrainElement{
+public:
+    River(){}
+    void getEffect(Army* army) override;
+};
+
+class Urban : public TerrainElement{
+public:
+    Urban(){}
+    void getEffect(Army* army) override;
+};
+
+class Fortification : public TerrainElement{
+public:
+    Fortification(){}
+    void getEffect(Army* army) override;
+};
+
+class SpecialZone : public TerrainElement{
+public:
+    SpecialZone(){}
+    void getEffect(Army* army) override;
+};
+
+//3.8 BattleField Class
 class BattleField
 {
 private:
     int n_rows, n_cols;
     // TODO
+    TerrainElement** terrain;
 public:
     BattleField(int n_rows, int n_cols, vector<Position *> arrayForest,
                 vector<Position *> arrayRiver, vector<Position *> arrayFortification,
                 vector<Position *> arrayUrban, vector<Position *> arraySpecialZone);
     ~BattleField();
+    string str();
 };
 
+
+// 3.10 HCMCampaign Class
 class HCMCampaign
 {
 private:
@@ -271,6 +316,21 @@ public:
     VehicleType getVT() const override {throw std::logic_error("");};
     Unit* dup() override;
     //--End of extra functions
+};
+
+
+//3.9 Configuration Class
+class Configuration{
+private:
+    int num_rows, num_cols;
+    vector<Position*> arrayForest, arrayRiver, arrayFortification, arrayUrban, arraySpecialZone;
+    Unit* liberationUnits;
+    Unit* ARVNUnits;
+    int eventCode;
+public:
+    Configuration(const string & filepath);
+    ~Configuration();
+    string str();
 };
 
 #endif

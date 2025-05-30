@@ -1,4 +1,5 @@
 #include "hcmcampaign.h"
+#include <unistd.h>
 ////////////////////////////////////////////////////////////////////////
 /// STUDENT'S ANSWER BEGINS HERE
 ////////////////////////////////////////////////////////////////////////
@@ -48,9 +49,9 @@ string Vehicle::str() const{
     
     ostringstream oss;
     oss << "Vehicle[vehicleType=" << vt
-        << ", quantity=" << quantity
-        << ", weight=" << weight
-        << ", pos=" << pos.str() << "]";
+        << ",quantity=" << quantity
+        << ",weight=" << weight
+        << ",position=" << pos.str() << "]";
     return oss.str();
 }
 
@@ -113,8 +114,10 @@ int Infantry::getAttackScore(){
         return score;
     }
     setQuantity(q);
+    cout << "Recursive";
     return getAttackScore();
 }
+
 
 //str Method
 string Infantry::str() const {
@@ -143,9 +146,9 @@ string Infantry::str() const {
     
     ostringstream oss;
     oss << "Infantry[infantryType=" << it
-        << ", quantity=" << quantity
-        << ", weight=" << weight
-        << ", pos=" << pos.str() << "]";
+        << ",quantity=" << quantity
+        << ",weight=" << weight
+        << ",position=" << pos.str() << "]";
     return oss.str();
 }
 
@@ -173,6 +176,12 @@ bool Army :: sNum(int n){
     }
     return false;
 }    
+Unit* Vehicle::dup(){
+    return new Vehicle(*this);
+}
+Unit* Infantry::dup(){ 
+    return new Infantry(*this);
+}
 //--End of extra functions
 Army::Army() : unitList(nullptr), battleField(nullptr), name(""), LF(0), EXP(0) {}
 Army::Army(Unit **unitArray, int size, string name, BattleField *battleField): LF(0), EXP(0), unitList(new UnitList(size)), name(name), battleField(battleField){
@@ -184,10 +193,13 @@ Army::Army(Unit **unitArray, int size, string name, BattleField *battleField): L
         }else{
             tempEXP += unit->getAttackScore();
         }
-        if(unit != NULL) this -> unitList -> insert(unit -> dup());
     }
     LF = min(tempLF,1000);
     EXP = min(tempEXP, 500);
+    for(int i = 0; i < size; i++){
+        Unit* duplicate = unitArray[i] -> dup();
+        if(duplicate != NULL) this -> unitList -> insert(duplicate);
+    }
     
 }
 
@@ -293,12 +305,6 @@ UnitList* Army::getUnitList(){
     return this -> unitList;
 }
 
-Unit* Vehicle::dup(){
-    return new Vehicle(this->quantity, this->weight, this->pos, this->vehicleType);
-}
-Unit* Infantry::dup(){ 
-    return new Infantry(this -> quantity, this -> weight, this -> pos, this -> infantryType);
-}
 
 void Army :: reCal(){ //checked
     if (!unitList || !unitList->getHead()) {
@@ -461,8 +467,8 @@ void LiberationArmy::fight(Army *enemy, bool defense ){
 //str() Method
 string LiberationArmy::str() const{
     ostringstream oss;
-    oss << "LiberationArmy[name=" << name
-        << ",LF=" << LF
+    oss << "LiberationArmy["
+        << "LF=" << LF
         << ",EXP=" << EXP
         << ",unitList=" << unitList -> str()
         << ",battleField="
@@ -472,7 +478,7 @@ string LiberationArmy::str() const{
 
 //3.4.2 Army Class
 //Constructor
-ARVN::ARVN( Unit ** unitArray , int size , string name , BattleField * battleField ) : Army(unitArray, size, name, battleField){}
+ARVN::ARVN(Unit **unitArray , int size , string name , BattleField * battleField ) : Army(unitArray, size, name , battleField){}
 //fight Method
 //Extra functions
 bool UnitList::exist(Unit* u){
@@ -556,8 +562,8 @@ void ARVN::fight(Army* enemy, bool defense){
 //str Method
 string ARVN::str()const{
     ostringstream oss;
-    oss << "ARVN[name=" << name
-        << ",LF=" << LF
+    oss << "ARVN[name="
+        << "LF=" << LF
         << ",EXP=" << EXP
         << ",unitList=" << unitList -> str()
         << ",battleField=" << "]";
@@ -704,7 +710,7 @@ string UnitList::str() const{
         if(current -> data -> isVehicle()) countV++;
         else countI++;
         unitlist += current -> data -> str();
-        if(current -> next != nullptr) unitlist += ';';
+        if(current -> next != nullptr) unitlist += ',';
         current = current -> next;
     }
 
@@ -716,7 +722,47 @@ string UnitList::str() const{
     return oss.str();
 }
 
+////////////////////////////////////////////////
+//3.7 TerrainElement Class
+TerrainElement::TerrainElement(){};
+TerrainElement::~TerrainElement(){};
 
+void Road::getEffect(Army* army){};
+void Mountain::getEffect(Army* army){};
+void River::getEffect(Army* army){};
+void Urban::getEffect(Army* army){};
+void Fortification::getEffect(Army* army){};
+void SpecialZone::getEffect(Army* army){};
+
+
+
+///////////////////////////////////////////////
+//3.8 BattleField Class
+BattleField::BattleField(int n_rows, int n_cols, vector<Position *> arrayForest,
+                        vector<Position *> arrayRiver, vector<Position *> arrayFortification,
+                        vector<Position *> arrayUrban, vector<Position *> arraySpecialZone){}
+BattleField::~BattleField(){}
+
+string BattleField::str(){return "";}
+
+
+
+/////////////////////////////////////////////////
+//3.9 Configuration
+Configuration::Configuration(const string& filepath){}
+Configuration::~Configuration(){};
+
+string Configuration::str(){return "";}
+
+
+
+////////////////////////////////////////////////
+//3.10 HCMCampaign Class
+HCMCampaign::HCMCampaign(const string& config_file_path){}
+
+void HCMCampaign::run(){}
+
+string HCMCampaign::printResult(){return "";}
 
 ////////////////////////////////////////////////
 /// END OF STUDENT'S ANSWER
